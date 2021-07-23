@@ -18,6 +18,7 @@ import java.util.Map;
 
 /**
  * Bean相关信息缓存
+ *
  * @author JerryMa
  * @version v2.2.1
  * @date 2021/4/20
@@ -47,57 +48,53 @@ public class PropInfo implements Serializable {
 
     /**
      * 初始化
+     *
      * @param beanClass
      */
-    public PropInfo(Class<?> beanClass){
+    public PropInfo(Class<?> beanClass) {
         // 初始化字段-列名的映射
         this.fieldToColumnMap = new HashMap<>();
         this.columnToFieldMap = new HashMap<>();
         this.columns = new ArrayList<>();
         List<Field> fields = BeanUtils.extractAllFields(beanClass);
-        if(V.notEmpty(fields)){
-            for(Field fld : fields){
+        if (V.notEmpty(fields)) {
+            for (Field fld : fields) {
                 String fldName = fld.getName();
                 String columnName = null;
                 TableField tableField = fld.getAnnotation(TableField.class);
-                if(tableField != null){
-                    if(tableField.exist() == false){
+                if (tableField != null) {
+                    if (tableField.exist() == false) {
                         columnName = null;
-                    }
-                    else {
-                        if (V.notEmpty(tableField.value())){
+                    } else {
+                        if (V.notEmpty(tableField.value())) {
                             columnName = tableField.value();
-                        }
-                        else{
+                        } else {
                             columnName = S.toSnakeCase(fldName);
                         }
                     }
                 }
                 // 主键
                 TableId tableId = fld.getAnnotation(TableId.class);
-                if(tableId != null && this.idColumn == null){
-                    if (V.notEmpty(tableId.value())){
+                if (tableId != null && this.idColumn == null) {
+                    if (V.notEmpty(tableId.value())) {
                         columnName = tableId.value();
-                    }
-                    else if(columnName == null){
+                    } else if (columnName == null) {
                         columnName = S.toSnakeCase(fldName);
                     }
                     this.idColumn = columnName;
-                }
-                else{
+                } else {
                     TableLogic tableLogic = fld.getAnnotation(TableLogic.class);
-                    if(tableLogic != null){
-                        if (V.notEmpty(tableLogic.value())){
+                    if (tableLogic != null) {
+                        if (V.notEmpty(tableLogic.value())) {
                             columnName = tableLogic.value();
-                        }
-                        else if(columnName == null){
+                        } else if (columnName == null) {
                             columnName = S.toSnakeCase(fldName);
                         }
                         this.deletedColumn = columnName;
                     }
                 }
                 this.fieldToColumnMap.put(fldName, columnName);
-                if(V.notEmpty(columnName)){
+                if (V.notEmpty(columnName)) {
                     this.columnToFieldMap.put(columnName, fldName);
                     this.columns.add(columnName);
                 }
